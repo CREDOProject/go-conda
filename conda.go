@@ -4,6 +4,7 @@ type verb string
 
 const (
 	Install verb = "install"
+	Download
 )
 
 type conda struct {
@@ -27,6 +28,14 @@ type PackageInfo struct {
 func (c *conda) Install(info *PackageInfo) *conda {
 	c.packageInfo = *info
 	c.verb = Install
+	return c
+}
+
+// Downloads a package.
+// https://docs.anaconda.com/free/working-with-conda/packages/shared-pkg-cache/
+func (c *conda) Download(info *PackageInfo) *conda {
+	c.packageInfo = *info
+	c.verb = Download
 	return c
 }
 
