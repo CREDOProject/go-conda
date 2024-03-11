@@ -8,16 +8,16 @@ const (
 )
 
 type conda struct {
-	verb        verb
-	packageInfo PackageInfo
-	dryRun      bool
+	verb         verb
+	packageInfo  PackageInfo
+	dryRun       bool
+	downloadPath string // used in CONDA_PKGS_DIRS.
+	condaPath    string // used in CONDA_ENVS_PATH.
 }
 
 type command struct {
 	binaryName      *string
 	binaryArguments []string
-	downloadPath    string // used in CONDA_PKGS_DIRS.
-	condaPath       string // used in CONDA_ENVS_PATH.
 }
 
 type PackageInfo struct {
@@ -35,9 +35,10 @@ func (c *conda) Install(info *PackageInfo) *conda {
 
 // Downloads a package.
 // https://docs.anaconda.com/free/working-with-conda/packages/shared-pkg-cache/
-func (c *conda) Download(info *PackageInfo) *conda {
+func (c *conda) Download(info *PackageInfo, downloadPath string) *conda {
 	c.packageInfo = *info
 	c.verb = Download
+	c.downloadPath = downloadPath
 	return c
 }
 
@@ -50,8 +51,10 @@ func (c *conda) DryRun() *conda {
 
 // Start a new Conda command.
 // https://docs.anaconda.com/free/working-with-conda/
-func New() *conda {
-	return &conda{}
+func New(condaPath string) *conda {
+	return &conda{
+		condaPath: condaPath,
+	}
 }
 
 // Build the Conda command so it can be run.
