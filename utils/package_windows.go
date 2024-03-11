@@ -1,7 +1,9 @@
 //go:build windows
 
-package goconda
+package utils
 
 import "regexp"
+
+var conda = "conda.exe"
 
 var condaRegex = regexp.MustCompile(`^conda\.exe$`)

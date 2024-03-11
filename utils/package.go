@@ -1,7 +1,9 @@
 //go:build unix
 
-package goconda
+package utils
 
 import "regexp"
+
+var conda = "conda"
 
 var condaRegex = regexp.MustCompile(`^conda$`)
