@@ -16,6 +16,8 @@ type conda struct {
 type command struct {
 	binaryName      *string
 	binaryArguments []string
+	downloadPath    string // used in CONDA_PKGS_DIRS.
+	condaPath       string // used in CONDA_ENVS_PATH.
 }
 
 type PackageInfo struct {
