@@ -1,10 +1,18 @@
 package goconda
 
+import "errors"
+
 type verb string
 
 const (
 	Install verb = "install"
 	Download
+	NoVerb
+)
+
+var (
+	ErrNoPackageName = errors.New("Package name not specified.")
+	ErrNoVerb        = errors.New("Verb not specified.")
 )
 
 type conda struct {
@@ -18,6 +26,7 @@ type conda struct {
 type command struct {
 	binaryName      *string
 	binaryArguments []string
+	env             map[string]string
 }
 
 type PackageInfo struct {
@@ -59,5 +68,10 @@ func New(condaPath string) *conda {
 
 // Build the Conda command so it can be run.
 func (p *conda) Seal() (*command, error) {
-	return nil, nil
+	return &command{
+		env: map[string]string{
+			"CONDA_PKGS_DIRS": p.downloadPath,
+			"CONDA_ENVS_PATH": p.condaPath,
+		},
+	}, nil
 }
