@@ -10,25 +10,25 @@ import (
 var execCommander = shell.New
 
 // Function used to find the pip binary in the system.
-func DetectPipBinary() (string, error) {
+func DetectCondaBinary() (string, error) {
 	return execCommander().LookPath(conda)
 }
 
-func PipBinaryFrom(path string) (string, error) {
-	execs, err := files.ExecsInPath(path, looksLikePip)
+func CondaBinaryFrom(path string) (string, error) {
+	execs, err := files.ExecsInPath(path, looksLikeConda)
 	if err != nil {
 		return "", err
 	}
 	if len(execs) < 1 {
-		return "", errors.New("No pip found.")
+		return "", errors.New("No conda found.")
 	}
 
 	return execs[0], err
 
 }
 
-// looksLikePip returns true if the given filename looks like a Python
+// looksLikeConda returns true if the given filename looks like a Python
 // executable.
-func looksLikePip(name string) bool {
+func looksLikeConda(name string) bool {
 	return condaRegex.MatchString(name)
 }
