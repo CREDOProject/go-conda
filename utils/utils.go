@@ -9,7 +9,9 @@ import (
 
 var execCommander = shell.New
 
-// Function used to find the pip binary in the system.
+// Function is used to detect the path to the Conda binary on the current
+// system. It returns a string representing the path to the Conda
+// binary file, or an error if it fails to detect the binary.
 func DetectCondaBinary() (string, error) {
 	return execCommander().LookPath(conda)
 }
