@@ -1,8 +1,16 @@
 package goconda
 
-import "errors"
+import (
+	"errors"
+	"os"
+
+	"github.com/CREDOProject/sharedutils/env"
+	"github.com/CREDOProject/sharedutils/shell"
+)
 
 type verb string
+
+var execCommander = shell.New
 
 const (
 	Install  verb = "install"
@@ -109,4 +117,22 @@ func (p *conda) Seal() (*command, error) {
 		binaryArguments: args,
 		env:             env,
 	}, nil
+}
+
+type RunOptions struct {
+	Output *os.File
+}
+
+// Runs the command.
+func (c *command) Run(options *RunOptions) error {
+	command := execCommander().Command(*c.binaryName, c.binaryArguments...)
+	if options.Output != nil {
+		command.Stdout = options.Output
+		command.Stderr = options.Output
+	}
+	if c.env != nil {
+		command.Env = env.Roll(c.env)
+	}
+	error := command.Run()
+	return error
 }
