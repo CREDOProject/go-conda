@@ -5,9 +5,8 @@ import "errors"
 type verb string
 
 const (
-	Install verb = "install"
-	Download
-	NoVerb
+	Install  verb = "install"
+	Download      = "download"
 )
 
 var (
@@ -16,11 +15,12 @@ var (
 )
 
 type conda struct {
-	verb         verb
-	packageInfo  PackageInfo
-	dryRun       bool
-	downloadPath string // used in CONDA_PKGS_DIRS.
+	binaryName   string
 	condaPath    string // used in CONDA_ENVS_PATH.
+	downloadPath string // used in CONDA_PKGS_DIRS.
+	dryRun       bool
+	packageInfo  PackageInfo
+	verb         verb
 }
 
 type command struct {
@@ -60,18 +60,53 @@ func (c *conda) DryRun() *conda {
 
 // Start a new Conda command.
 // https://docs.anaconda.com/free/working-with-conda/
-func New(condaPath string) *conda {
+func New(binaryName string, downloadPath string, condaPath string) *conda {
 	return &conda{
-		condaPath: condaPath,
+		binaryName:   binaryName,
+		condaPath:    condaPath,
+		downloadPath: downloadPath,
 	}
 }
 
 // Build the Conda command so it can be run.
 func (p *conda) Seal() (*command, error) {
+	args := []string{}
+
+	switch p.verb {
+	case Install:
+		args = append(args, "install")
+	case Download:
+		args = append(args, "install", "--download-only")
+	default:
+		return nil, errors.New("No verb specified.")
+	}
+
+	if p.packageInfo.PackageName == "" {
+		return nil, errors.New("No package name specified.")
+	}
+
+	args = append(args, p.packageInfo.PackageName)
+
+	if p.packageInfo.Channel != "" {
+		args = append(args, "--channel", p.packageInfo.Channel)
+	}
+
+	if p.dryRun {
+		args = append(args, "--dry-run")
+	}
+
+	env := make(map[string]string)
+
+	if p.downloadPath != "" {
+		env["CONDA_PKGS_DIRS"] = p.downloadPath
+	}
+	if p.condaPath != "" {
+		env["CONDA_ENVS_PATH"] = p.condaPath
+	}
+
 	return &command{
-		env: map[string]string{
-			"CONDA_PKGS_DIRS": p.downloadPath,
-			"CONDA_ENVS_PATH": p.condaPath,
-		},
+		binaryName:      &p.binaryName,
+		binaryArguments: args,
+		env:             env,
 	}, nil
 }
